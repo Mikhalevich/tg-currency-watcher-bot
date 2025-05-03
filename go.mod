@@ -3,6 +3,7 @@ module github.com/Mikhalevich/tg-currency-watcher-bot
 go 1.24.0
 
 require (
+	github.com/go-telegram/bot v1.15.0
 	github.com/jinzhu/configor v1.2.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
