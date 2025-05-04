@@ -1,0 +1,7 @@
+log_level: "info"
+tracing:
+  endpoint: "jaeger:4318"
+  service_name: "exchange"
+coin_market_cap:
+  api_key: "CoinMarketCap api key"
+  timeout: 5s

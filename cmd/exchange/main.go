@@ -3,17 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 
-	"github.com/Mikhalevich/tg-currency-watcher-bot/app/currencybot"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/rateprovider/coinmarketcap"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/storage/postgres"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/config"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/exchange"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/logger"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/tracing"
 )
 
 func main() {
-	var cfg config.CurrencyBot
+	var cfg config.Exchange
 	if err := infra.LoadConfig(&cfg); err != nil {
 		logger.StdLogger().WithError(err).Error("failed to load config")
 		os.Exit(1)
@@ -31,12 +34,19 @@ func main() {
 	}
 
 	if err := infra.RunSignalInterruptionFunc(func(ctx context.Context) error {
-		b, err := currencybot.New(cfg.Bot.Token, logger.NewLogrus().WithField("bot_name", "currency_bot"))
-		if err != nil {
-			return fmt.Errorf("create currency bot: %w", err)
-		}
+		var (
+			pDB        = postgres.New()
+			httpClient = http.Client{
+				Timeout: cfg.CoinMarketCap.Timeout,
+			}
+			coinMarketCap = coinmarketcap.New(cfg.CoinMarketCap.APIKey, &httpClient)
+		)
 
-		b.Start(ctx)
+		ex := exchange.New(pDB, coinMarketCap)
+
+		if err := ex.UpdateCurrencies(ctx); err != nil {
+			return fmt.Errorf("update currencies: %w", err)
+		}
 
 		return nil
 	}); err != nil {
