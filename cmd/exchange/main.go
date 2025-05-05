@@ -49,9 +49,14 @@ func main() {
 
 		ex := exchange.New(pDB, coinMarketCap)
 
+		ctx, span := tracing.StartSpan(ctx)
+		defer span.End()
+
 		if err := ex.UpdateCurrencies(ctx); err != nil {
 			return fmt.Errorf("update currencies: %w", err)
 		}
+
+		<-ctx.Done()
 
 		return nil
 	}); err != nil {
