@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN GOBIN=/app go install github.com/rubenv/sql-migrate/...@v1.6.1
 
-FROM alpine:3.20
+FROM alpine:3.21
 
 WORKDIR /app/
 

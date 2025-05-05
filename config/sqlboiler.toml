@@ -1,0 +1,13 @@
+output = "shared/models"
+wipe     = true
+add-enum-types = true
+
+[psql]
+  dbname = "bot"
+  host   = "postgres"
+  port   = 5432
+  user   = "bot"
+  pass   = "bot"
+  schema = "public"
+  sslmode= "disable"
+  blacklist = ["migrations"]

@@ -6,7 +6,7 @@ BIN_PATH ?= $(ROOT)/bin
 LINTER_NAME := golangci-lint
 LINTER_VERSION := v2.1.2
 
-.PHONY: all build test compose-up vendor install-linter lint tools tools-update generate
+.PHONY: all build test compose-up compose-down generate-db-models vendor install-linter lint tools tools-update generate
 
 all: build
 
@@ -22,6 +22,9 @@ compose-up:
 
 compose-down:
 	docker-compose -f ./script/docker/docker-compose.yml down
+
+generate-db-models:
+	docker-compose -f ./script/docker/sqlboiler-docker-compose.yml up --build
 
 vendor:
 	go mod tidy
