@@ -1,0 +1,41 @@
+version: "3"
+services:
+  sqlboiler:
+    build:
+      context: ../../
+      dockerfile: script/docker/sqlboiler.Dockerfile
+    depends_on:
+      sql-migrate:
+        condition: service_completed_successfully
+    networks:
+      - bot-net
+    volumes:
+      - ../../internal/adapter/storage/postgres/internal/:/app/shared:rw
+  postgres:
+    image: postgres:16.3-alpine3.20
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: bot
+      POSTGRES_USER: bot
+      POSTGRES_PASSWORD: bot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bot"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    networks:
+      - bot-net
+  sql-migrate:
+    build:
+      context: ../../
+      dockerfile: script/docker/sqlmigrate.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bot-net
+networks:
+  bot-net:
+    driver: bridge

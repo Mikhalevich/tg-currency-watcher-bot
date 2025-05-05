@@ -12,6 +12,7 @@ type Exchange struct {
 	LogLevel      string        `yaml:"log_level" required:"true"`
 	Tracing       Tracing       `yaml:"tracing" required:"true"`
 	CoinMarketCap CoinMarketCap `yaml:"coin_market_cap" required:"true"`
+	Postgres      Postgres      `yaml:"postgres" required:"true"`
 }
 
 type CoinMarketCap struct {
@@ -26,4 +27,8 @@ type Bot struct {
 type Tracing struct {
 	Endpoint    string `yaml:"endpoint" required:"true"`
 	ServiceName string `yaml:"service_name" required:"true"`
+}
+
+type Postgres struct {
+	Connection string `yaml:"connection" required:"true"`
 }

@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/rateprovider/coinmarketcap"
-	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/storage/postgres"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/config"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/exchange"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra"
@@ -35,18 +34,29 @@ func main() {
 
 	if err := infra.RunSignalInterruptionFunc(func(ctx context.Context) error {
 		var (
-			pDB        = postgres.New()
 			httpClient = http.Client{
 				Timeout: cfg.CoinMarketCap.Timeout,
 			}
 			coinMarketCap = coinmarketcap.New(cfg.CoinMarketCap.APIKey, &httpClient)
 		)
 
+		pDB, cleanup, err := infra.MakePostgres(cfg.Postgres)
+		if err != nil {
+			return fmt.Errorf("init postgres: %w", err)
+		}
+
+		defer cleanup()
+
 		ex := exchange.New(pDB, coinMarketCap)
+
+		ctx, span := tracing.StartSpan(ctx)
+		defer span.End()
 
 		if err := ex.UpdateCurrencies(ctx); err != nil {
 			return fmt.Errorf("update currencies: %w", err)
 		}
+
+		<-ctx.Done()
 
 		return nil
 	}); err != nil {
