@@ -7,6 +7,11 @@ import (
 
 type Money float64
 type Symbol string
+
+func (s Symbol) String() string {
+	return string(s)
+}
+
 type ExternalID string
 
 func (e ExternalID) String() string {

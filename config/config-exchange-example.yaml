@@ -5,3 +5,5 @@ tracing:
 coin_market_cap:
   api_key: "CoinMarketCap api key"
   timeout: 5s
+postgres:
+  connection: "host=postgres port=5432 user=bot password=bot dbname=bot sslmode=disable"
