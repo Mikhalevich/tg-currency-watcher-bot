@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Mikhalevich/tg-currency-watcher-bot/app/currencybot"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/app/currencybot"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/config"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/logger"
