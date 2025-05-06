@@ -3,9 +3,10 @@ package config
 import "time"
 
 type CurrencyBot struct {
-	LogLevel string  `yaml:"log_level" required:"true"`
-	Tracing  Tracing `yaml:"tracing" required:"true"`
-	Bot      Bot     `yaml:"bot" required:"true"`
+	LogLevel string   `yaml:"log_level" required:"true"`
+	Tracing  Tracing  `yaml:"tracing" required:"true"`
+	Bot      Bot      `yaml:"bot" required:"true"`
+	Postgres Postgres `yaml:"postgres" required:"true"`
 }
 
 type Exchange struct {
