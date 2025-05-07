@@ -11,23 +11,15 @@ import (
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 )
 
-func (cb *CurrencyBot) MyCurrencies(ctx context.Context, botAPI *bot.Bot, update *models.Update) {
+func (cb *CurrencyBot) MyCurrencies(ctx context.Context, botAPI *bot.Bot, update *models.Update) error {
 	currencies, err := cb.userCurrency.GetUserCurrencies(ctx)
 	if err != nil {
-		cb.logger.WithError(err).Error("get user currencies")
-
-		return
+		return fmt.Errorf("get user currencies: %w", err)
 	}
 
-	if _, err := botAPI.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		ReplyParameters: &models.ReplyParameters{
-			MessageID: update.Message.ID,
-		},
-		Text: formatUserCurrencies(currencies),
-	}); err != nil {
-		cb.logger.WithError(err).Error("send message")
-	}
+	cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, formatUserCurrencies(currencies))
+
+	return nil
 }
 
 func formatUserCurrencies(currencies []user.Currency) string {

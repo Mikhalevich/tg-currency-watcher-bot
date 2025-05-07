@@ -8,13 +8,5 @@ import (
 )
 
 func (cb *CurrencyBot) DefaultHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
-	if _, err := b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		ReplyParameters: &models.ReplyParameters{
-			MessageID: update.Message.ID,
-		},
-		Text: "command is not supported",
-	}); err != nil {
-		cb.logger.WithError(err).Error("send message")
-	}
+	cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "command is not supported")
 }
