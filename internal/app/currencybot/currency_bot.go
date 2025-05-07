@@ -91,8 +91,10 @@ func (cb *CurrencyBot) registerCommandTextHandler(
 	handler botHandler,
 ) {
 	wrapper := func(ctx context.Context, botAPI *bot.Bot, update *models.Update) {
-		ctx, span := tracing.StartSpan(ctx)
+		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
+
+		ctx = logger.WithLogger(ctx, cb.logger.WithField("handler_path", pattern))
 
 		if err := handler(ctx, botAPI, update); err != nil {
 			cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "internal error")
