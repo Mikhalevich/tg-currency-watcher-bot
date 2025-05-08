@@ -7,6 +7,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/rates"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/logger"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/tracing"
@@ -16,11 +17,16 @@ type UserCurrency interface {
 	GetUserCurrencies(ctx context.Context) ([]user.Currency, error)
 }
 
+type RatesProvider interface {
+	CurrencyRates(ctx context.Context) ([]rates.Currency, error)
+}
+
 type CurrencyBot struct {
 	botAPI *bot.Bot
 	logger logger.Logger
 
-	userCurrency UserCurrency
+	userCurrency  UserCurrency
+	ratesProvider RatesProvider
 
 	commands []models.BotCommand
 }
@@ -29,10 +35,12 @@ func New(
 	token string,
 	logger logger.Logger,
 	userCurrency UserCurrency,
+	ratesProvider RatesProvider,
 ) (*CurrencyBot, error) {
 	currencyBot := CurrencyBot{
-		logger:       logger,
-		userCurrency: userCurrency,
+		logger:        logger,
+		userCurrency:  userCurrency,
+		ratesProvider: ratesProvider,
 	}
 
 	botAPI, err := bot.New(
@@ -67,6 +75,7 @@ func (cb *CurrencyBot) Start(ctx context.Context) error {
 
 func (cb *CurrencyBot) registerHandlers() {
 	cb.registerCommandTextHandler("/my_currencies", "get all subscribed currency pairs", cb.MyCurrencies)
+	cb.registerCommandTextHandler("/currency_pairs", "view all currency pairs to subscribe", cb.CurrencyPairs)
 }
 
 func (cb *CurrencyBot) setMyCommands(ctx context.Context) error {
@@ -91,8 +100,10 @@ func (cb *CurrencyBot) registerCommandTextHandler(
 	handler botHandler,
 ) {
 	wrapper := func(ctx context.Context, botAPI *bot.Bot, update *models.Update) {
-		ctx, span := tracing.StartSpan(ctx)
+		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
+
+		ctx = logger.WithLogger(ctx, cb.logger.WithField("handler_path", pattern))
 
 		if err := handler(ctx, botAPI, update); err != nil {
 			cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "internal error")
