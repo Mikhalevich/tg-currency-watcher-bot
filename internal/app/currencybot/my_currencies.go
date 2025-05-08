@@ -28,5 +28,5 @@ func formatUserCurrencies(currencies []user.Currency) string {
 		output = append(output, fmt.Sprintf("%s-%s => %9.2f", v.Quote, v.Base, 1/v.Price))
 	}
 
-	return strings.Join(output, "n")
+	return strings.Join(output, "\n")
 }

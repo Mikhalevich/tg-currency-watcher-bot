@@ -7,6 +7,7 @@ import (
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/app/currencybot"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/config"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/rates"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/logger"
@@ -43,6 +44,7 @@ func main() {
 			cfg.Bot.Token,
 			logger.NewLogrus().WithField("bot_name", "currency_bot"),
 			user.New(pDB),
+			rates.New(pDB),
 		)
 		if err != nil {
 			return fmt.Errorf("create currency bot: %w", err)
