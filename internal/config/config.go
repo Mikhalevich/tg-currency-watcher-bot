@@ -3,10 +3,11 @@ package config
 import "time"
 
 type CurrencyBot struct {
-	LogLevel string   `yaml:"log_level" required:"true"`
-	Tracing  Tracing  `yaml:"tracing" required:"true"`
-	Bot      Bot      `yaml:"bot" required:"true"`
-	Postgres Postgres `yaml:"postgres" required:"true"`
+	LogLevel    string      `yaml:"log_level" required:"true"`
+	Tracing     Tracing     `yaml:"tracing" required:"true"`
+	Bot         Bot         `yaml:"bot" required:"true"`
+	Postgres    Postgres    `yaml:"postgres" required:"true"`
+	ButtonRedis ButtonRedis `yaml:"button_redis" required:"true"`
 }
 
 type Exchange struct {
@@ -32,4 +33,11 @@ type Tracing struct {
 
 type Postgres struct {
 	Connection string `yaml:"connection" required:"true"`
+}
+
+type ButtonRedis struct {
+	Addr string        `yaml:"addr" required:"true"`
+	Pwd  string        `yaml:"pwd" required:"true"`
+	DB   int           `yaml:"db" required:"true"`
+	TTL  time.Duration `yaml:"ttl" required:"true"`
 }

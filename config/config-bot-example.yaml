@@ -6,3 +6,8 @@ bot:
   token: "currency-watcher-bot-token"
 postgres:
   connection: "host=postgres port=5432 user=bot password=bot dbname=bot sslmode=disable"
+button_redis:
+  addr: "redis:6379"
+  pwd: "redis123"
+  db: 1
+  ttl: 1h
