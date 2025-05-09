@@ -7,6 +7,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/rates"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/logger"
@@ -21,12 +22,17 @@ type RatesProvider interface {
 	CurrencyRates(ctx context.Context) ([]rates.Currency, error)
 }
 
+type ButtonProvider interface {
+	ButtonGroup() (*button.ButtonGroup, string)
+}
+
 type CurrencyBot struct {
 	botAPI *bot.Bot
 	logger logger.Logger
 
-	userCurrency  UserCurrency
-	ratesProvider RatesProvider
+	userCurrency   UserCurrency
+	ratesProvider  RatesProvider
+	buttonProvider ButtonProvider
 
 	commands []models.BotCommand
 }
@@ -36,11 +42,13 @@ func New(
 	logger logger.Logger,
 	userCurrency UserCurrency,
 	ratesProvider RatesProvider,
+	buttonProvider ButtonProvider,
 ) (*CurrencyBot, error) {
 	currencyBot := CurrencyBot{
-		logger:        logger,
-		userCurrency:  userCurrency,
-		ratesProvider: ratesProvider,
+		logger:         logger,
+		userCurrency:   userCurrency,
+		ratesProvider:  ratesProvider,
+		buttonProvider: buttonProvider,
 	}
 
 	botAPI, err := bot.New(

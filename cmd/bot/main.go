@@ -7,6 +7,7 @@ import (
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/app/currencybot"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/config"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/rates"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra"
@@ -40,11 +41,17 @@ func main() {
 
 		defer cleanup()
 
+		buttonRepository, err := infra.MakeRedisButtonRepository(ctx, cfg.ButtonRedis)
+		if err != nil {
+			return fmt.Errorf("make redis button repository: %w", err)
+		}
+
 		currencyBot, err := currencybot.New(
 			cfg.Bot.Token,
 			logger.NewLogrus().WithField("bot_name", "currency_bot"),
 			user.New(pDB),
 			rates.New(pDB),
+			button.NewButtonProvider(buttonRepository),
 		)
 		if err != nil {
 			return fmt.Errorf("create currency bot: %w", err)
