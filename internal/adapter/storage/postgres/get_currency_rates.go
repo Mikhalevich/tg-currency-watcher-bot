@@ -31,10 +31,11 @@ func toRatesCurrency(dbCurrency *models.Currency) rates.Currency {
 	price, _ := dbCurrency.Price.Float64()
 
 	return rates.Currency{
-		ID:        dbCurrency.ID,
-		Base:      rates.Symbol(dbCurrency.Base),
-		Quote:     rates.Symbol(dbCurrency.Quote),
-		Price:     rates.Money(price),
-		UpdatedAt: dbCurrency.UpdatedAt,
+		ID:         dbCurrency.ID,
+		Base:       rates.Symbol(dbCurrency.Base),
+		Quote:      rates.Symbol(dbCurrency.Quote),
+		Price:      rates.Money(price),
+		IsInverted: dbCurrency.IsInverted,
+		UpdatedAt:  dbCurrency.UpdatedAt,
 	}
 }

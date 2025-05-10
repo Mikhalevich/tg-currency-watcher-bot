@@ -45,7 +45,7 @@ func (cb *CurrencyBot) makeCurrencyPairsButtonsMarkup(
 
 	for _, currPair := range currencies {
 		btn, err := button.CurrencyPairButton(
-			fmt.Sprintf("%s/%s", currPair.Base, currPair.Quote),
+			currPair.FormatPair(),
 			button.CurrencyPairPayload{
 				CurrencyID: currPair.ID,
 				IsInverted: false,

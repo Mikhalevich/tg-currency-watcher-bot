@@ -2,6 +2,7 @@ package rates
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -13,11 +14,20 @@ func (s Symbol) String() string {
 }
 
 type Currency struct {
-	ID        int
-	Base      Symbol
-	Quote     Symbol
-	Price     Money
-	UpdatedAt time.Time
+	ID         int
+	Base       Symbol
+	Quote      Symbol
+	Price      Money
+	IsInverted bool
+	UpdatedAt  time.Time
+}
+
+func (c Currency) FormatPair() string {
+	if c.IsInverted {
+		return fmt.Sprintf("%s/%s", c.Quote, c.Base)
+	}
+
+	return fmt.Sprintf("%s/%s", c.Base, c.Quote)
 }
 
 type RatesProvider interface {
