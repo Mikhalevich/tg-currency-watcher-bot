@@ -31,9 +31,10 @@ func toUserCurrency(dbCurrency *models.Currency) user.Currency {
 	price, _ := dbCurrency.Price.Float64()
 
 	return user.Currency{
-		Base:      user.Symbol(dbCurrency.Base),
-		Quote:     user.Symbol(dbCurrency.Quote),
-		Price:     user.Money(price),
-		UpdatedAt: dbCurrency.UpdatedAt,
+		Base:       user.Symbol(dbCurrency.Base),
+		Quote:      user.Symbol(dbCurrency.Quote),
+		Price:      user.Money(price),
+		IsInverted: dbCurrency.IsInverted,
+		UpdatedAt:  dbCurrency.UpdatedAt,
 	}
 }

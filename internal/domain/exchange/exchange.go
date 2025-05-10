@@ -25,6 +25,7 @@ type Currency struct {
 	Quote           Symbol
 	QuoteExternalID ExternalID
 	Price           Money
+	IsInverted      bool
 	UpdatedAt       time.Time
 }
 
