@@ -44,6 +44,7 @@ func toDBCurrency(currency exchange.Currency) *models.Currency {
 		Quote:           currency.Quote.String(),
 		QuoteExternalID: currency.QuoteExternalID.String(),
 		Price:           price,
+		IsInverted:      currency.IsInverted,
 		UpdatedAt:       currency.UpdatedAt,
 	}
 }

@@ -37,6 +37,7 @@ func toPortCurrency(dbCurrency *models.Currency) exchange.Currency {
 		Quote:           exchange.Symbol(dbCurrency.Quote),
 		QuoteExternalID: exchange.ExternalID(dbCurrency.QuoteExternalID),
 		Price:           exchange.Money(price),
+		IsInverted:      dbCurrency.IsInverted,
 		UpdatedAt:       dbCurrency.UpdatedAt,
 	}
 }
