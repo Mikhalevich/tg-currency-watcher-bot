@@ -25,7 +25,7 @@ func (cb *CurrencyBot) MyCurrencies(ctx context.Context, botAPI *bot.Bot, update
 func formatUserCurrencies(currencies []user.Currency) string {
 	output := make([]string, 0, len(currencies))
 	for _, v := range currencies {
-		output = append(output, fmt.Sprintf("%s-%s => %9.2f", v.Quote, v.Base, 1/v.Price))
+		output = append(output, fmt.Sprintf("%s/%s => %9.2f", v.Base, v.Quote, v.Price))
 	}
 
 	return strings.Join(output, "\n")
