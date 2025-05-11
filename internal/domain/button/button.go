@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 type ButtonType string
@@ -50,17 +48,16 @@ func GetPayload[T any](b Button) (T, error) {
 
 type CurrencyPairPayload struct {
 	CurrencyID int
-	IsInverted bool
 }
 
-func CurrencyPairButton(caption string, payload CurrencyPairPayload) (Button, error) {
+func CurrencyPairButton(buttonID string, caption string, payload CurrencyPairPayload) (Button, error) {
 	payloadGob, err := encodePayload(payload)
 	if err != nil {
 		return Button{}, fmt.Errorf("encode payload: %w", err)
 	}
 
 	return Button{
-		ID:      uuid.NewString(),
+		ID:      buttonID,
 		Caption: caption,
 		Type:    CurrencyPair,
 		Payload: payloadGob,

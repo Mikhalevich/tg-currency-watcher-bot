@@ -23,7 +23,7 @@ type RatesProvider interface {
 }
 
 type ButtonProvider interface {
-	ButtonGroup() (*button.ButtonGroup, string)
+	SetButtonGroup(ctx context.Context, groupID string, buttons []button.Button) error
 }
 
 type CurrencyBot struct {
@@ -114,6 +114,8 @@ func (cb *CurrencyBot) registerCommandTextHandler(
 		ctx = logger.WithLogger(ctx, cb.logger.WithField("handler_path", pattern))
 
 		if err := handler(ctx, botAPI, update); err != nil {
+			logger.FromContext(ctx).WithError(err).Error("handler error")
+
 			cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "internal error")
 		}
 	}

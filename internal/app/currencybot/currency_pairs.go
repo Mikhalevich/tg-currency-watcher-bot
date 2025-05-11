@@ -7,9 +7,14 @@ import (
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+	"github.com/google/uuid"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/rates"
+)
+
+const (
+	buttonsPerRow = 4
 )
 
 func (cb *CurrencyBot) CurrencyPairs(ctx context.Context, botAPI *bot.Bot, update *models.Update) error {
@@ -18,7 +23,13 @@ func (cb *CurrencyBot) CurrencyPairs(ctx context.Context, botAPI *bot.Bot, updat
 		return fmt.Errorf("get user currencies: %w", err)
 	}
 
-	markup, err := cb.makeCurrencyPairsButtonsMarkup(ctx, currencies)
+	if len(currencies) == 0 {
+		cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "no currency pairs")
+
+		return nil
+	}
+
+	buttons, groupID, err := cb.makeCurrencyPairsButtons(ctx, currencies)
 	if err != nil {
 		return fmt.Errorf("make buttons markup: %w", err)
 	}
@@ -26,7 +37,7 @@ func (cb *CurrencyBot) CurrencyPairs(ctx context.Context, botAPI *bot.Bot, updat
 	if _, err := botAPI.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "choose pair to subscribe for notifications",
-		ReplyMarkup: markup,
+		ReplyMarkup: makeButtonMarkup(groupID, buttons),
 	}); err != nil {
 		return fmt.Errorf("send message: %w", err)
 	}
@@ -34,41 +45,63 @@ func (cb *CurrencyBot) CurrencyPairs(ctx context.Context, botAPI *bot.Bot, updat
 	return nil
 }
 
-func (cb *CurrencyBot) makeCurrencyPairsButtonsMarkup(
+func (cb *CurrencyBot) makeCurrencyPairsButtons(
 	ctx context.Context,
 	currencies []rates.Currency,
-) (models.ReplyMarkup, error) {
+) ([]button.Button, string, error) {
 	var (
-		group, groupID = cb.buttonProvider.ButtonGroup()
-		buttons        = make([]models.InlineKeyboardButton, 0, len(currencies))
+		groupID = uuid.NewString()
+		buttons = make([]button.Button, 0, len(currencies))
 	)
 
-	for _, currPair := range currencies {
+	for idx, currPair := range currencies {
 		btn, err := button.CurrencyPairButton(
+			strconv.Itoa(idx+1),
 			currPair.FormatPair(),
 			button.CurrencyPairPayload{
 				CurrencyID: currPair.ID,
-				IsInverted: false,
 			},
 		)
 
 		if err != nil {
-			return nil, fmt.Errorf("make currency pair button: %w", err)
+			return nil, "", fmt.Errorf("make currency pair button: %w", err)
 		}
 
-		group.AddButton(btn)
-
-		buttons = append(buttons, models.InlineKeyboardButton{
-			Text:         btn.Caption,
-			CallbackData: fmt.Sprintf("%s_%s", groupID, strconv.Itoa(currPair.ID)),
-		})
+		buttons = append(buttons, btn)
 	}
 
-	if err := group.Store(ctx); err != nil {
-		return nil, fmt.Errorf("store buttons group: %w", err)
+	if err := cb.buttonProvider.SetButtonGroup(ctx, groupID, buttons); err != nil {
+		return nil, "", fmt.Errorf("store buttons group: %w", err)
+	}
+
+	return buttons, groupID, nil
+}
+
+func makeButtonMarkup(groupID string, buttons []button.Button) models.ReplyMarkup {
+	var (
+		buttonRow             = make([]models.InlineKeyboardButton, 0, len(buttons))
+		rows                  = len(buttons) / buttonsPerRow
+		markup                = make([][]models.InlineKeyboardButton, 0, rows)
+		prevButtonRowStartIdx = 0
+	)
+
+	for idx, btn := range buttons {
+		buttonRow = append(buttonRow, models.InlineKeyboardButton{
+			Text:         btn.Caption,
+			CallbackData: fmt.Sprintf("%s_%s", groupID, btn.ID),
+		})
+
+		if (idx+1)%buttonsPerRow == 0 {
+			markup = append(markup, buttonRow[prevButtonRowStartIdx:])
+			prevButtonRowStartIdx = idx + 1
+		}
+	}
+
+	if prevButtonRowStartIdx < len(buttonRow) {
+		markup = append(markup, buttonRow[prevButtonRowStartIdx:])
 	}
 
 	return models.InlineKeyboardMarkup{
-		InlineKeyboard: [][]models.InlineKeyboardButton{buttons},
-	}, nil
+		InlineKeyboard: markup,
+	}
 }
