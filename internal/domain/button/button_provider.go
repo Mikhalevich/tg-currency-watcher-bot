@@ -3,8 +3,6 @@ package button
 import (
 	"context"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 type ButtonRepository interface {
@@ -30,8 +28,10 @@ func (bp *ButtonProvider) SetButton(ctx context.Context, btn Button) error {
 	return nil
 }
 
-func (bp *ButtonProvider) ButtonGroup() (*ButtonGroup, string) {
-	groupID := uuid.NewString()
+func (bp *ButtonProvider) SetButtonGroup(ctx context.Context, groupID string, buttons []Button) error {
+	if err := bp.repository.StoreButtonGroup(ctx, groupID, buttons); err != nil {
+		return fmt.Errorf("store button group: %w", err)
+	}
 
-	return NewButtonGroup(groupID, bp.repository), groupID
+	return nil
 }
