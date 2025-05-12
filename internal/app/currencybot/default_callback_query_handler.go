@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
+
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
 )
 
 func (cb *CurrencyBot) DefaultCallbackQueryHandler(
