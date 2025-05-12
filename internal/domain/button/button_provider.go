@@ -6,6 +6,7 @@ import (
 )
 
 type ButtonRepository interface {
+	GetButton(ctx context.Context, id string) (*Button, error)
 	StoreButton(ctx context.Context, btn Button) error
 	StoreButtonGroup(ctx context.Context, groupID string, btns []Button) error
 }
@@ -18,6 +19,15 @@ func NewButtonProvider(repository ButtonRepository) *ButtonProvider {
 	return &ButtonProvider{
 		repository: repository,
 	}
+}
+
+func (bp *ButtonProvider) GetButton(ctx context.Context, btnID string) (*Button, error) {
+	btn, err := bp.repository.GetButton(ctx, btnID)
+	if err != nil {
+		return nil, fmt.Errorf("load button: %w", err)
+	}
+
+	return btn, nil
 }
 
 func (bp *ButtonProvider) SetButton(ctx context.Context, btn Button) error {

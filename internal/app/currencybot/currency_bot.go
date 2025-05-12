@@ -23,6 +23,7 @@ type RatesProvider interface {
 }
 
 type ButtonProvider interface {
+	GetButton(ctx context.Context, btnID string) (*button.Button, error)
 	SetButtonGroup(ctx context.Context, groupID string, buttons []button.Button) error
 }
 
@@ -84,6 +85,7 @@ func (cb *CurrencyBot) Start(ctx context.Context) error {
 func (cb *CurrencyBot) registerHandlers() {
 	cb.registerCommandTextHandler("/my_currencies", "get all subscribed currency pairs", cb.MyCurrencies)
 	cb.registerCommandTextHandler("/currency_pairs", "view all currency pairs to subscribe", cb.CurrencyPairs)
+	cb.addDefaultCallbackQueryHander(cb.DefaultCallbackQueryHandler)
 }
 
 func (cb *CurrencyBot) setMyCommands(ctx context.Context) error {
@@ -102,12 +104,8 @@ func (cb *CurrencyBot) setMyCommands(ctx context.Context) error {
 
 type botHandler func(ctx context.Context, botAPI *bot.Bot, update *models.Update) error
 
-func (cb *CurrencyBot) registerCommandTextHandler(
-	pattern string,
-	description string,
-	handler botHandler,
-) {
-	wrapper := func(ctx context.Context, botAPI *bot.Bot, update *models.Update) {
+func (cb *CurrencyBot) wrapHandler(pattern string, handler botHandler) bot.HandlerFunc {
+	return func(ctx context.Context, botAPI *bot.Bot, update *models.Update) {
 		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
 
@@ -119,18 +117,33 @@ func (cb *CurrencyBot) registerCommandTextHandler(
 			cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "internal error")
 		}
 	}
+}
 
+func (cb *CurrencyBot) registerCommandTextHandler(
+	pattern string,
+	description string,
+	handler botHandler,
+) {
 	cb.botAPI.RegisterHandler(
 		bot.HandlerTypeMessageText,
 		pattern,
 		bot.MatchTypeExact,
-		wrapper,
+		cb.wrapHandler(pattern, handler),
 	)
 
 	cb.commands = append(cb.commands, models.BotCommand{
 		Command:     pattern,
 		Description: description,
 	})
+}
+
+func (cb *CurrencyBot) addDefaultCallbackQueryHander(handler botHandler) {
+	cb.botAPI.RegisterHandler(
+		bot.HandlerTypeCallbackQueryData,
+		"",
+		bot.MatchTypePrefix,
+		cb.wrapHandler("default_callback_query", handler),
+	)
 }
 
 func (cb *CurrencyBot) replyTextMessage(ctx context.Context, chatID int64, messageID int, text string) {
