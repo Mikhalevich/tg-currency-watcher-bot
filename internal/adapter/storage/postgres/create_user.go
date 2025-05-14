@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 )
 
 func (p *Postgres) CreateUser(ctx context.Context, usr *user.User) (int, error) {

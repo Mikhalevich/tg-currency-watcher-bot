@@ -23,6 +23,6 @@ CREATE TABLE users_currency(
 -- +migrate Down
 -- SQL section 'Down' is executed when this migration is rolled back
 
-DROP TABLE user_currency;
+DROP TABLE users_currency;
 DROP INDEX users_chat_id_idx;
 DROP TABLE users;
