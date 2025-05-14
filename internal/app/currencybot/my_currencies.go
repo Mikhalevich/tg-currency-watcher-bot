@@ -12,9 +12,15 @@ import (
 )
 
 func (cb *CurrencyBot) MyCurrencies(ctx context.Context, botAPI *bot.Bot, update *models.Update) error {
-	currencies, err := cb.userCurrency.GetUserCurrencies(ctx)
+	currencies, err := cb.userCurrency.GetCurrenciesByChatID(ctx, update.Message.Chat.ID)
 	if err != nil {
 		return fmt.Errorf("get user currencies: %w", err)
+	}
+
+	if len(currencies) == 0 {
+		cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "no subscribed currencies")
+
+		return nil
 	}
 
 	cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, formatUserCurrencies(currencies))

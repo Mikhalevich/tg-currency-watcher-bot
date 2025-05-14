@@ -6,7 +6,7 @@ BIN_PATH ?= $(ROOT)/bin
 LINTER_NAME := golangci-lint
 LINTER_VERSION := v2.1.2
 
-.PHONY: all build test compose-up compose-down generate-db-models vendor install-linter lint tools tools-update generate
+.PHONY: all build test compose-up compose-down generate-db-models-up generate-db-models-down change-db-models-owner vendor install-linter lint tools tools-update generate
 
 all: build
 
@@ -23,8 +23,14 @@ compose-up:
 compose-down:
 	docker-compose -f ./script/docker/docker-compose.yml down
 
-generate-db-models:
+generate-db-models-up:
 	docker-compose -f ./script/docker/sqlboiler-docker-compose.yml up --build
+
+generate-db-models-down:
+	docker-compose -f ./script/docker/sqlboiler-docker-compose.yml down
+
+change-db-models-owner:
+	sudo chown -R $(NAME) ./internal/adapter/storage/postgres/internal/models
 
 vendor:
 	go mod tidy

@@ -15,7 +15,8 @@ import (
 )
 
 type UserCurrency interface {
-	GetUserCurrencies(ctx context.Context) ([]user.Currency, error)
+	GetCurrenciesByChatID(ctx context.Context, chatID int64) ([]user.Currency, error)
+	SubscribeCurrency(ctx context.Context, chatID int64, currencyID int) error
 }
 
 type RatesProvider interface {

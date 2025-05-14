@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/exchange"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/rates"
@@ -20,4 +21,8 @@ func New(db *sql.DB) *Postgres {
 	return &Postgres{
 		db: db,
 	}
+}
+
+func (p *Postgres) IsNotFoundError(err error) bool {
+	return errors.Is(err, sql.ErrNoRows)
 }
