@@ -16,7 +16,7 @@ CREATE UNIQUE INDEX base_ext_id_quote_ext_id_idx ON currency(base_external_id, q
 
 INSERT INTO currency(base, base_external_id, quote, quote_external_id, price, is_inverted, updated_at) VALUES
     ('USD', '2781', 'BTC', '1', 0, TRUE, CURRENT_TIMESTAMP),
-    ('USD', '2781', 'EUR', '2790', 0, FALSE, CURRENT_TIMESTAMP),
+    ('USD', '2781', 'EUR', '2790', 0, TRUE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'RUB', '2806', 0, FALSE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'BYN', '3533', 0, FALSE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'XAU', '3575', 0, TRUE, CURRENT_TIMESTAMP),
