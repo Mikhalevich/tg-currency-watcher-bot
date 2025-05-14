@@ -23,56 +23,70 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	ChatID    int       `boil:"chat_id" json:"chat_id" toml:"chat_id" yaml:"chat_id"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	ID                        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	ChatID                    int       `boil:"chat_id" json:"chat_id" toml:"chat_id" yaml:"chat_id"`
+	CreatedAt                 time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	NotificationIntervalHours int       `boil:"notification_interval_hours" json:"notification_interval_hours" toml:"notification_interval_hours" yaml:"notification_interval_hours"`
+	LastNotificationTime      time.Time `boil:"last_notification_time" json:"last_notification_time" toml:"last_notification_time" yaml:"last_notification_time"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserColumns = struct {
-	ID        string
-	ChatID    string
-	CreatedAt string
+	ID                        string
+	ChatID                    string
+	CreatedAt                 string
+	NotificationIntervalHours string
+	LastNotificationTime      string
 }{
-	ID:        "id",
-	ChatID:    "chat_id",
-	CreatedAt: "created_at",
+	ID:                        "id",
+	ChatID:                    "chat_id",
+	CreatedAt:                 "created_at",
+	NotificationIntervalHours: "notification_interval_hours",
+	LastNotificationTime:      "last_notification_time",
 }
 
 var UserTableColumns = struct {
-	ID        string
-	ChatID    string
-	CreatedAt string
+	ID                        string
+	ChatID                    string
+	CreatedAt                 string
+	NotificationIntervalHours string
+	LastNotificationTime      string
 }{
-	ID:        "users.id",
-	ChatID:    "users.chat_id",
-	CreatedAt: "users.created_at",
+	ID:                        "users.id",
+	ChatID:                    "users.chat_id",
+	CreatedAt:                 "users.created_at",
+	NotificationIntervalHours: "users.notification_interval_hours",
+	LastNotificationTime:      "users.last_notification_time",
 }
 
 // Generated where
 
 var UserWhere = struct {
-	ID        whereHelperint
-	ChatID    whereHelperint
-	CreatedAt whereHelpertime_Time
+	ID                        whereHelperint
+	ChatID                    whereHelperint
+	CreatedAt                 whereHelpertime_Time
+	NotificationIntervalHours whereHelperint
+	LastNotificationTime      whereHelpertime_Time
 }{
-	ID:        whereHelperint{field: "\"users\".\"id\""},
-	ChatID:    whereHelperint{field: "\"users\".\"chat_id\""},
-	CreatedAt: whereHelpertime_Time{field: "\"users\".\"created_at\""},
+	ID:                        whereHelperint{field: "\"users\".\"id\""},
+	ChatID:                    whereHelperint{field: "\"users\".\"chat_id\""},
+	CreatedAt:                 whereHelpertime_Time{field: "\"users\".\"created_at\""},
+	NotificationIntervalHours: whereHelperint{field: "\"users\".\"notification_interval_hours\""},
+	LastNotificationTime:      whereHelpertime_Time{field: "\"users\".\"last_notification_time\""},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	UsersCurrencies string
+	Currencies string
 }{
-	UsersCurrencies: "UsersCurrencies",
+	Currencies: "Currencies",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	UsersCurrencies UsersCurrencySlice `boil:"UsersCurrencies" json:"UsersCurrencies" toml:"UsersCurrencies" yaml:"UsersCurrencies"`
+	Currencies CurrencySlice `boil:"Currencies" json:"Currencies" toml:"Currencies" yaml:"Currencies"`
 }
 
 // NewStruct creates a new relationship struct
@@ -80,28 +94,28 @@ func (*userR) NewStruct() *userR {
 	return &userR{}
 }
 
-func (o *User) GetUsersCurrencies() UsersCurrencySlice {
+func (o *User) GetCurrencies() CurrencySlice {
 	if o == nil {
 		return nil
 	}
 
-	return o.R.GetUsersCurrencies()
+	return o.R.GetCurrencies()
 }
 
-func (r *userR) GetUsersCurrencies() UsersCurrencySlice {
+func (r *userR) GetCurrencies() CurrencySlice {
 	if r == nil {
 		return nil
 	}
 
-	return r.UsersCurrencies
+	return r.Currencies
 }
 
 // userL is where Load methods for each relationship are stored.
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "chat_id", "created_at"}
-	userColumnsWithoutDefault = []string{"chat_id", "created_at"}
+	userAllColumns            = []string{"id", "chat_id", "created_at", "notification_interval_hours", "last_notification_time"}
+	userColumnsWithoutDefault = []string{"chat_id", "created_at", "notification_interval_hours", "last_notification_time"}
 	userColumnsWithDefault    = []string{"id"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{"id"}
@@ -412,23 +426,24 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// UsersCurrencies retrieves all the users_currency's UsersCurrencies with an executor.
-func (o *User) UsersCurrencies(mods ...qm.QueryMod) usersCurrencyQuery {
+// Currencies retrieves all the currency's Currencies with an executor.
+func (o *User) Currencies(mods ...qm.QueryMod) currencyQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
+		qm.InnerJoin("\"users_currency\" on \"currency\".\"id\" = \"users_currency\".\"currency_id\""),
 		qm.Where("\"users_currency\".\"user_id\"=?", o.ID),
 	)
 
-	return UsersCurrencies(queryMods...)
+	return Currencies(queryMods...)
 }
 
-// LoadUsersCurrencies allows an eager lookup of values, cached into the
+// LoadCurrencies allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadUsersCurrencies(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+func (userL) LoadCurrencies(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -481,8 +496,10 @@ func (userL) LoadUsersCurrencies(ctx context.Context, e boil.ContextExecutor, si
 	}
 
 	query := NewQuery(
-		qm.From(`users_currency`),
-		qm.WhereIn(`users_currency.user_id in ?`, argsSlice...),
+		qm.Select("\"currency\".\"id\", \"currency\".\"base\", \"currency\".\"base_external_id\", \"currency\".\"quote\", \"currency\".\"quote_external_id\", \"currency\".\"price\", \"currency\".\"is_inverted\", \"currency\".\"updated_at\", \"a\".\"user_id\""),
+		qm.From("\"currency\""),
+		qm.InnerJoin("\"users_currency\" as \"a\" on \"currency\".\"id\" = \"a\".\"currency_id\""),
+		qm.WhereIn("\"a\".\"user_id\" in ?", argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -490,22 +507,36 @@ func (userL) LoadUsersCurrencies(ctx context.Context, e boil.ContextExecutor, si
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load users_currency")
+		return errors.Wrap(err, "failed to eager load currency")
 	}
 
-	var resultSlice []*UsersCurrency
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice users_currency")
+	var resultSlice []*Currency
+
+	var localJoinCols []int
+	for results.Next() {
+		one := new(Currency)
+		var localJoinCol int
+
+		err = results.Scan(&one.ID, &one.Base, &one.BaseExternalID, &one.Quote, &one.QuoteExternalID, &one.Price, &one.IsInverted, &one.UpdatedAt, &localJoinCol)
+		if err != nil {
+			return errors.Wrap(err, "failed to scan eager loaded results for currency")
+		}
+		if err = results.Err(); err != nil {
+			return errors.Wrap(err, "failed to plebian-bind eager loaded slice currency")
+		}
+
+		resultSlice = append(resultSlice, one)
+		localJoinCols = append(localJoinCols, localJoinCol)
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on users_currency")
+		return errors.Wrap(err, "failed to close results in eager load on currency")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users_currency")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for currency")
 	}
 
-	if len(usersCurrencyAfterSelectHooks) != 0 {
+	if len(currencyAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
@@ -513,24 +544,25 @@ func (userL) LoadUsersCurrencies(ctx context.Context, e boil.ContextExecutor, si
 		}
 	}
 	if singular {
-		object.R.UsersCurrencies = resultSlice
+		object.R.Currencies = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
-				foreign.R = &usersCurrencyR{}
+				foreign.R = &currencyR{}
 			}
-			foreign.R.User = object
+			foreign.R.Users = append(foreign.R.Users, object)
 		}
 		return nil
 	}
 
-	for _, foreign := range resultSlice {
+	for i, foreign := range resultSlice {
+		localJoinCol := localJoinCols[i]
 		for _, local := range slice {
-			if local.ID == foreign.UserID {
-				local.R.UsersCurrencies = append(local.R.UsersCurrencies, foreign)
+			if local.ID == localJoinCol {
+				local.R.Currencies = append(local.R.Currencies, foreign)
 				if foreign.R == nil {
-					foreign.R = &usersCurrencyR{}
+					foreign.R = &currencyR{}
 				}
-				foreign.R.User = local
+				foreign.R.Users = append(foreign.R.Users, local)
 				break
 			}
 		}
@@ -539,57 +571,149 @@ func (userL) LoadUsersCurrencies(ctx context.Context, e boil.ContextExecutor, si
 	return nil
 }
 
-// AddUsersCurrencies adds the given related objects to the existing relationships
+// AddCurrencies adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
-// Appends related to o.R.UsersCurrencies.
-// Sets related.R.User appropriately.
-func (o *User) AddUsersCurrencies(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*UsersCurrency) error {
+// Appends related to o.R.Currencies.
+// Sets related.R.Users appropriately.
+func (o *User) AddCurrencies(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Currency) error {
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.UserID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"users_currency\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-				strmangle.WhereClause("\"", "\"", 2, usersCurrencyPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.UserID, rel.CurrencyID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.UserID = o.ID
 		}
 	}
 
+	for _, rel := range related {
+		query := "insert into \"users_currency\" (\"user_id\", \"currency_id\") values ($1, $2)"
+		values := []interface{}{o.ID, rel.ID}
+
+		if boil.IsDebug(ctx) {
+			writer := boil.DebugWriterFrom(ctx)
+			fmt.Fprintln(writer, query)
+			fmt.Fprintln(writer, values)
+		}
+		_, err = exec.ExecContext(ctx, query, values...)
+		if err != nil {
+			return errors.Wrap(err, "failed to insert into join table")
+		}
+	}
 	if o.R == nil {
 		o.R = &userR{
-			UsersCurrencies: related,
+			Currencies: related,
 		}
 	} else {
-		o.R.UsersCurrencies = append(o.R.UsersCurrencies, related...)
+		o.R.Currencies = append(o.R.Currencies, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
-			rel.R = &usersCurrencyR{
-				User: o,
+			rel.R = &currencyR{
+				Users: UserSlice{o},
 			}
 		} else {
-			rel.R.User = o
+			rel.R.Users = append(rel.R.Users, o)
 		}
 	}
 	return nil
+}
+
+// SetCurrencies removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Users's Currencies accordingly.
+// Replaces o.R.Currencies with related.
+// Sets related.R.Users's Currencies accordingly.
+func (o *User) SetCurrencies(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Currency) error {
+	query := "delete from \"users_currency\" where \"user_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	removeCurrenciesFromUsersSlice(o, related)
+	if o.R != nil {
+		o.R.Currencies = nil
+	}
+
+	return o.AddCurrencies(ctx, exec, insert, related...)
+}
+
+// RemoveCurrencies relationships from objects passed in.
+// Removes related items from R.Currencies (uses pointer comparison, removal does not keep order)
+// Sets related.R.Users.
+func (o *User) RemoveCurrencies(ctx context.Context, exec boil.ContextExecutor, related ...*Currency) error {
+	if len(related) == 0 {
+		return nil
+	}
+
+	var err error
+	query := fmt.Sprintf(
+		"delete from \"users_currency\" where \"user_id\" = $1 and \"currency_id\" in (%s)",
+		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
+	)
+	values := []interface{}{o.ID}
+	for _, rel := range related {
+		values = append(values, rel.ID)
+	}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err = exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+	removeCurrenciesFromUsersSlice(o, related)
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.Currencies {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.Currencies)
+			if ln > 1 && i < ln-1 {
+				o.R.Currencies[i] = o.R.Currencies[ln-1]
+			}
+			o.R.Currencies = o.R.Currencies[:ln-1]
+			break
+		}
+	}
+
+	return nil
+}
+
+func removeCurrenciesFromUsersSlice(o *User, related []*Currency) {
+	for _, rel := range related {
+		if rel.R == nil {
+			continue
+		}
+		for i, ri := range rel.R.Users {
+			if o.ID != ri.ID {
+				continue
+			}
+
+			ln := len(rel.R.Users)
+			if ln > 1 && i < ln-1 {
+				rel.R.Users[i] = rel.R.Users[ln-1]
+			}
+			rel.R.Users = rel.R.Users[:ln-1]
+			break
+		}
+	}
 }
 
 // Users retrieves all the records using an executor.

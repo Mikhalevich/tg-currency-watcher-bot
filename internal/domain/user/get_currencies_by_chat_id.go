@@ -48,8 +48,8 @@ func (c Currency) pairPrice() Money {
 	return c.Price
 }
 
-func (u *User) GetUserCurrencies(ctx context.Context) ([]Currency, error) {
-	currencies, err := u.storage.GetUserCurrencies(ctx)
+func (u *UserProcessor) GetCurrenciesByChatID(ctx context.Context, chatID int64) ([]Currency, error) {
+	currencies, err := u.storage.GetCurrenciesByChatID(ctx, chatID)
 	if err != nil {
 		return nil, fmt.Errorf("get user currencies: %w", err)
 	}

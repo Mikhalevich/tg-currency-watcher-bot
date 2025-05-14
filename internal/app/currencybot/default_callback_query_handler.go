@@ -54,7 +54,11 @@ func (cb *CurrencyBot) processCurrencyPair(
 		return fmt.Errorf("get payload for currency pair: %w", err)
 	}
 
-	cb.replyTextMessage(ctx, chatID, messageID, fmt.Sprintf("get curren currency pair id: %d", payload.CurrencyID))
+	if err := cb.userCurrency.SubscribeCurrency(ctx, chatID, payload.CurrencyID); err != nil {
+		return fmt.Errorf("subscribe currency: %w", err)
+	}
+
+	cb.replyTextMessage(ctx, chatID, messageID, "Subscibed successfully")
 
 	return nil
 }
