@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -11,14 +13,20 @@ import (
 )
 
 func (p *Postgres) GetCurrenciesByChatID(ctx context.Context, chatID int64) ([]user.Currency, error) {
-	currencies, err := models.Currencies(
-		qm.Load(models.CurrencyRels.Users, qm.Where("users.chat_id = ?", chatID)),
-	).All(ctx, p.db)
+	dbUsr, err := models.Users(
+		qm.Load(models.UserRels.Currencies),
+		qm.Where("chat_id = ?", chatID),
+	).One(ctx, p.db)
+
 	if err != nil {
-		return nil, fmt.Errorf("get all currencies: %w", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("get user currencies: %w", err)
 	}
 
-	return toUserCurrencies(currencies), nil
+	return toUserCurrencies(dbUsr.R.Currencies), nil
 }
 
 func toUserCurrencies(dbCurrencies []*models.Currency) []user.Currency {
