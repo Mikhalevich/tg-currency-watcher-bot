@@ -18,8 +18,9 @@ type Exchange struct {
 }
 
 type CoinMarketCap struct {
-	APIKey  string        `yaml:"api_key" required:"true"`
-	Timeout time.Duration `yaml:"timeout" required:"true"`
+	APIKey   string        `yaml:"api_key" required:"true"`
+	Timeout  time.Duration `yaml:"timeout" required:"true"`
+	Interval time.Duration `yaml:"interval" required:"true"`
 }
 
 type Bot struct {
