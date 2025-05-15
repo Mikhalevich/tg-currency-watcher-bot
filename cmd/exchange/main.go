@@ -11,6 +11,7 @@ import (
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/exchange"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/scheduler"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/tracing"
 )
 
@@ -47,16 +48,20 @@ func main() {
 
 		defer cleanup()
 
-		ex := exchange.New(pDB, coinMarketCap)
+		cmcExchange := exchange.New(pDB, coinMarketCap)
 
-		ctx, span := tracing.StartSpan(ctx)
-		defer span.End()
+		scheduler.PeriodicTaskExecutor(
+			ctx,
+			cfg.CoinMarketCap.Interval,
+			"coinmarketcap_exchange",
+			func(ctx context.Context) error {
+				if err := cmcExchange.UpdateCurrencies(ctx); err != nil {
+					return fmt.Errorf("update currencies: %w", err)
+				}
 
-		if err := ex.UpdateCurrencies(ctx); err != nil {
-			return fmt.Errorf("update currencies: %w", err)
-		}
-
-		<-ctx.Done()
+				return nil
+			},
+		)
 
 		return nil
 	}); err != nil {
