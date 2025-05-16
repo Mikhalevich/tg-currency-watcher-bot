@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/rateprovider/coinmarketcap"
@@ -35,10 +34,8 @@ func main() {
 
 	if err := infra.RunSignalInterruptionFunc(func(ctx context.Context) error {
 		var (
-			httpClient = http.Client{
-				Timeout: cfg.CoinMarketCap.Timeout,
-			}
-			coinMarketCap = coinmarketcap.New(cfg.CoinMarketCap.APIKey, &httpClient)
+			httpClient    = tracing.NewClient(cfg.CoinMarketCap.Timeout)
+			coinMarketCap = coinmarketcap.New(cfg.CoinMarketCap.APIKey, httpClient)
 		)
 
 		pDB, cleanup, err := infra.MakePostgres(cfg.Postgres)
