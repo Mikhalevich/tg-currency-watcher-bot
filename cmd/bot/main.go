@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/messagesender"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/app/currencybot"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/config"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
@@ -49,7 +50,7 @@ func main() {
 		currencyBot, err := currencybot.New(
 			cfg.Bot.Token,
 			logger.NewLogrus().WithField("bot_name", "currency_bot"),
-			user.NewProcessor(pDB),
+			user.NewProcessor(pDB, messagesender.New()),
 			rates.New(pDB),
 			button.NewButtonProvider(buttonRepository),
 		)

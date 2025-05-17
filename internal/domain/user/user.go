@@ -19,15 +19,24 @@ type Storage interface {
 	GetUserByChatID(ctx context.Context, chatID int64) (*User, error)
 	AddUserCurrency(ctx context.Context, userID int, currencyID int) error
 
+	GetUsersReadyForNotifications(ctx context.Context) ([]User, error)
+	UpdateLastNotificationTime(ctx context.Context, userIDs []int, notificationTime time.Time) error
+
 	IsNotFoundError(err error) bool
+}
+
+type MessageSender interface {
+	SendTextMessage(ctx context.Context, chatID int64, text string)
 }
 
 type UserProcessor struct {
 	storage Storage
+	sender  MessageSender
 }
 
-func NewProcessor(storage Storage) *UserProcessor {
+func NewProcessor(storage Storage, sender MessageSender) *UserProcessor {
 	return &UserProcessor{
 		storage: storage,
+		sender:  sender,
 	}
 }
