@@ -50,7 +50,7 @@ func main() {
 		currencyBot, err := currencybot.New(
 			cfg.Bot.Token,
 			logger.NewLogrus().WithField("bot_name", "currency_bot"),
-			user.NewProcessor(pDB, messagesender.New()),
+			user.NewProcessor(pDB, messagesender.NewNoop()),
 			rates.New(pDB),
 			button.NewButtonProvider(buttonRepository),
 		)
