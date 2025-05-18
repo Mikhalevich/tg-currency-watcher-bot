@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 )
 
@@ -21,6 +23,7 @@ type Storage interface {
 
 	GetUsersReadyForNotifications(ctx context.Context) ([]User, error)
 	UpdateLastNotificationTime(ctx context.Context, userIDs []int, notificationTime time.Time) error
+	Transaction(ctx context.Context, txFn func(ctx context.Context, store any) error) error
 
 	IsNotFoundError(err error) bool
 }
@@ -39,4 +42,27 @@ func NewProcessor(storage Storage, sender MessageSender) *UserProcessor {
 		storage: storage,
 		sender:  sender,
 	}
+}
+
+func transaction(
+	ctx context.Context,
+	transact Storage,
+	txFn func(ctx context.Context, store Storage) error,
+) error {
+	if err := transact.Transaction(ctx, func(ctx context.Context, store any) error {
+		storeT, ok := store.(Storage)
+		if !ok {
+			return errors.New("invalid object")
+		}
+
+		if err := txFn(ctx, storeT); err != nil {
+			return fmt.Errorf("tx fn: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("transaction: %w", err)
+	}
+
+	return nil
 }
