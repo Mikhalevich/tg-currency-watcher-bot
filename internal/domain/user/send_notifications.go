@@ -16,6 +16,10 @@ func (u *UserProcessor) SendNotifications(ctx context.Context) error {
 			return fmt.Errorf("get users for notifications: %w", err)
 		}
 
+		if len(users) == 0 {
+			return nil
+		}
+
 		userIDs := make([]int, 0, len(users))
 
 		for _, user := range users {
