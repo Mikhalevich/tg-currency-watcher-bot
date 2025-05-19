@@ -1,0 +1,9 @@
+log_level: "info"
+tracing:
+  endpoint: "jaeger:4318"
+  service_name: "notifer"
+postgres:
+  connection: "host=postgres port=5432 user=bot password=bot dbname=bot sslmode=disable"
+bot:
+  token: "currency-watcher-bot-token"
+interval: 1m

@@ -2,3 +2,4 @@
 /tools
 /config/config-bot.yaml
 /config/config-exchange.yaml
+/config/config-notifier.yaml

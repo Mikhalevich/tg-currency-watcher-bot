@@ -17,6 +17,14 @@ type Exchange struct {
 	Postgres      Postgres      `yaml:"postgres" required:"true"`
 }
 
+type Notifier struct {
+	LogLevel string        `yaml:"log_level" required:"true"`
+	Tracing  Tracing       `yaml:"tracing" required:"true"`
+	Bot      Bot           `yaml:"bot" required:"true"`
+	Postgres Postgres      `yaml:"postgres" required:"true"`
+	Interval time.Duration `yaml:"interval" required:"true"`
+}
+
 type CoinMarketCap struct {
 	APIKey   string        `yaml:"api_key" required:"true"`
 	Timeout  time.Duration `yaml:"timeout" required:"true"`

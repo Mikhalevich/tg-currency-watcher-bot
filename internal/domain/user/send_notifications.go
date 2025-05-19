@@ -9,7 +9,9 @@ import (
 
 func (u *UserProcessor) SendNotifications(ctx context.Context) error {
 	if err := transaction(ctx, u.storage, func(ctx context.Context, store Storage) error {
-		users, err := store.GetUsersReadyForNotifications(ctx)
+		currTime := time.Now()
+
+		users, err := store.GetUsersReadyForNotifications(ctx, currTime)
 		if err != nil {
 			return fmt.Errorf("get users for notifications: %w", err)
 		}
@@ -27,7 +29,7 @@ func (u *UserProcessor) SendNotifications(ctx context.Context) error {
 			u.sender.SendTextMessage(ctx, user.ChatID, formatUserCurrencies(currencies))
 		}
 
-		if err := store.UpdateLastNotificationTime(ctx, userIDs, time.Now()); err != nil {
+		if err := store.UpdateLastNotificationTime(ctx, userIDs, currTime); err != nil {
 			return fmt.Errorf("update last notification time: %w", err)
 		}
 
