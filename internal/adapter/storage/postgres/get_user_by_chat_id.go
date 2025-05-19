@@ -29,6 +29,16 @@ func convertToUser(dbUser *models.User) *user.User {
 	}
 }
 
+func convertToUsers(dbUsers models.UserSlice) []*user.User {
+	users := make([]*user.User, 0, len(dbUsers))
+
+	for _, dbUser := range dbUsers {
+		users = append(users, convertToUser(dbUser))
+	}
+
+	return users
+}
+
 func convertToDBUser(usr *user.User) *models.User {
 	return &models.User{
 		ID:                        usr.ID,

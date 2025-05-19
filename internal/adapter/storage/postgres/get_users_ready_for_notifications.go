@@ -2,10 +2,40 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"github.com/volatiletech/sqlboiler/v4/queries"
+
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/storage/postgres/internal/models"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 )
 
-func (p *Postgres) GetUsersReadyForNotifications(ctx context.Context) ([]user.User, error) {
-	return nil, nil
+func (p *Postgres) GetUsersReadyForNotifications(
+	ctx context.Context,
+	until time.Time,
+) ([]*user.User, error) {
+	var (
+		query = `
+			SELECT
+				id,
+				chat_id,
+				created_at,
+				notification_interval_hours,
+				last_notification_time
+			FROM
+				users
+			WHERE
+				last_notification_time + make_interval(hours => notification_interval_hours) < $1::timestamptz
+			FOR UPDATE SKIP LOCKED
+		`
+
+		users models.UserSlice
+	)
+
+	if err := queries.Raw(query, until).Bind(ctx, p.db, &users); err != nil {
+		return nil, fmt.Errorf("select users: %w", err)
+	}
+
+	return convertToUsers(users), nil
 }

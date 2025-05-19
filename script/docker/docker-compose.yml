@@ -24,6 +24,17 @@ services:
         condition: service_completed_successfully
     networks:
       - bot-net
+  notifier:
+    build:
+      context: ../../
+      dockerfile: script/docker/notifier.Dockerfile
+    depends_on:
+      jaeger:
+        condition: service_started
+      sql-migrate:
+        condition: service_completed_successfully
+    networks:
+      - bot-net
   jaeger:
     image: jaegertracing/all-in-one:1.57
     ports:
