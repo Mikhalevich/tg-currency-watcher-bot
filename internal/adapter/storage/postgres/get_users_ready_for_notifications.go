@@ -14,6 +14,7 @@ import (
 func (p *Postgres) GetUsersReadyForNotifications(
 	ctx context.Context,
 	until time.Time,
+	limit int,
 ) ([]*user.User, error) {
 	var (
 		query = `
@@ -27,13 +28,15 @@ func (p *Postgres) GetUsersReadyForNotifications(
 				users
 			WHERE
 				last_notification_time + make_interval(hours => notification_interval_hours) < $1::timestamptz
+			LIMIT
+				$2
 			FOR UPDATE SKIP LOCKED
 		`
 
 		users models.UserSlice
 	)
 
-	if err := queries.Raw(query, until).Bind(ctx, p.db, &users); err != nil {
+	if err := queries.Raw(query, until, limit).Bind(ctx, p.db, &users); err != nil {
 		return nil, fmt.Errorf("select users: %w", err)
 	}
 

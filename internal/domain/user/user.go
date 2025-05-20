@@ -21,7 +21,7 @@ type Storage interface {
 	GetUserByChatID(ctx context.Context, chatID int64) (*User, error)
 	AddUserCurrency(ctx context.Context, userID int, currencyID int) error
 
-	GetUsersReadyForNotifications(ctx context.Context, until time.Time) ([]*User, error)
+	GetUsersReadyForNotifications(ctx context.Context, until time.Time, limit int) ([]*User, error)
 	UpdateLastNotificationTime(ctx context.Context, userIDs []int, notificationTime time.Time) error
 	Transaction(ctx context.Context, txFn func(ctx context.Context, store any) error) error
 

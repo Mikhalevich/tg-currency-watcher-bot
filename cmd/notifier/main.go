@@ -52,7 +52,7 @@ func main() {
 			cfg.Interval,
 			"notifier",
 			func(ctx context.Context) error {
-				if err := userProcessor.SendNotifications(ctx); err != nil {
+				if err := userProcessor.SendNotifications(ctx, cfg.Limit); err != nil {
 					return fmt.Errorf("send notifications: %w", err)
 				}
 
