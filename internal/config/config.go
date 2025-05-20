@@ -23,6 +23,7 @@ type Notifier struct {
 	Bot      Bot           `yaml:"bot" required:"true"`
 	Postgres Postgres      `yaml:"postgres" required:"true"`
 	Interval time.Duration `yaml:"interval" required:"true"`
+	Limit    int           `yaml:"limit" required:"true"`
 }
 
 type CoinMarketCap struct {

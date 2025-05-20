@@ -7,3 +7,4 @@ postgres:
 bot:
   token: "currency-watcher-bot-token"
 interval: 1m
+limit: 100

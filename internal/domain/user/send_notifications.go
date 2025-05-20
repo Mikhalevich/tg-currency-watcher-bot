@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-func (u *UserProcessor) SendNotifications(ctx context.Context) error {
+func (u *UserProcessor) SendNotifications(ctx context.Context, usersLimit int) error {
 	if err := transaction(ctx, u.storage, func(ctx context.Context, store Storage) error {
 		currTime := time.Now()
 
-		users, err := store.GetUsersReadyForNotifications(ctx, currTime)
+		users, err := store.GetUsersReadyForNotifications(ctx, currTime, usersLimit)
 		if err != nil {
 			return fmt.Errorf("get users for notifications: %w", err)
 		}
