@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/Masterminds/squirrel"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 )
 
@@ -15,23 +15,17 @@ func (p *Postgres) UpdateLastNotificationTime(
 	userIDs []int,
 	notificationTime time.Time,
 ) error {
-	var (
-		query = `
-			UPDATE
-				users
-			SET
-				last_notification_time = ?
-			WHERE
-				id IN (?)
-		`
-	)
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
-	query, args, err := sqlx.In(query, notificationTime, userIDs)
+	query, args, err := psql.Update("users").
+		Set("last_notification_time", notificationTime).
+		Where(squirrel.Eq{
+			"id": userIDs,
+		}).ToSql()
+
 	if err != nil {
-		return fmt.Errorf("sqlx in: %w", err)
+		return fmt.Errorf("build query: %w", err)
 	}
-
-	query = sqlx.Rebind(sqlx.DOLLAR, query)
 
 	res, err := queries.Raw(query, args...).ExecContext(ctx, p.db)
 	if err != nil {
