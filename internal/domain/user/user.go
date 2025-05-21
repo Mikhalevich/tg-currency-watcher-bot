@@ -20,6 +20,7 @@ type Storage interface {
 	CreateUser(ctx context.Context, usr *User) (int, error)
 	GetUserByChatID(ctx context.Context, chatID int64) (*User, error)
 	AddUserCurrency(ctx context.Context, userID int, currencyID int) error
+	ChangeNotificationIntervalByChatID(ctx context.Context, chatID int64, interval int) error
 
 	GetUsersReadyForNotifications(ctx context.Context, until time.Time, limit int) ([]*User, error)
 	UpdateLastNotificationTime(ctx context.Context, userIDs []int, notificationTime time.Time) error
