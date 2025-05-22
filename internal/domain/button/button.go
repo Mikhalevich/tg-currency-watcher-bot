@@ -9,7 +9,8 @@ import (
 type ButtonType string
 
 const (
-	CurrencyPair ButtonType = "CurrencyPair"
+	CurrencyPair         ButtonType = "CurrencyPair"
+	NotificationInterval ButtonType = "NotificationInterval"
 )
 
 type Button struct {
@@ -60,6 +61,24 @@ func CurrencyPairButton(buttonID string, caption string, payload CurrencyPairPay
 		ID:      buttonID,
 		Caption: caption,
 		Type:    CurrencyPair,
+		Payload: payloadGob,
+	}, nil
+}
+
+type NotificationIntervalPayload struct {
+	Interval int
+}
+
+func NotificationIntervalButton(buttonID string, caption string, payload NotificationIntervalPayload) (Button, error) {
+	payloadGob, err := encodePayload(payload)
+	if err != nil {
+		return Button{}, fmt.Errorf("encode payload: %w", err)
+	}
+
+	return Button{
+		ID:      buttonID,
+		Caption: caption,
+		Type:    NotificationInterval,
 		Payload: payloadGob,
 	}, nil
 }

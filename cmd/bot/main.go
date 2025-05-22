@@ -47,10 +47,15 @@ func main() {
 			return fmt.Errorf("make redis button repository: %w", err)
 		}
 
+		msgSender, err := messagesender.New(cfg.Bot.Token)
+		if err != nil {
+			return fmt.Errorf("create message sender: %w", err)
+		}
+
 		currencyBot, err := currencybot.New(
 			cfg.Bot.Token,
 			logger.NewLogrus().WithField("bot_name", "currency_bot"),
-			user.NewProcessor(pDB, messagesender.NewNoop()),
+			user.NewProcessor(pDB, msgSender),
 			rates.New(pDB),
 			button.NewButtonProvider(buttonRepository),
 		)
