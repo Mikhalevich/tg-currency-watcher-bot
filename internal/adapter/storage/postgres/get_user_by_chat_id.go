@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -13,6 +15,10 @@ import (
 func (p *Postgres) GetUserByChatID(ctx context.Context, chatID int64) (*user.User, error) {
 	dbUser, err := models.Users(qm.Where("chat_id = ?", chatID)).One(ctx, p.db)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errNotFound
+		}
+
 		return nil, fmt.Errorf("get user: %w", err)
 	}
 

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/volatiletech/sqlboiler/v4/queries"
@@ -33,7 +32,7 @@ func (p *Postgres) ChangeNotificationIntervalByChatID(
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("no rows affected")
+		return errNotFound
 	}
 
 	return nil

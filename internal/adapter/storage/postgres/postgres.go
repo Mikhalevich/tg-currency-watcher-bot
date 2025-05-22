@@ -18,6 +18,10 @@ var _ exchange.Storage = (*Postgres)(nil)
 var _ user.Storage = (*Postgres)(nil)
 var _ rates.RatesProvider = (*Postgres)(nil)
 
+var (
+	errNotFound = errors.New("not found")
+)
+
 type Postgres struct {
 	db boil.ContextExecutor
 }
@@ -29,7 +33,7 @@ func New(db boil.ContextExecutor) *Postgres {
 }
 
 func (p *Postgres) IsNotFoundError(err error) bool {
-	return errors.Is(err, sql.ErrNoRows)
+	return errors.Is(err, errNotFound)
 }
 
 func (p *Postgres) Transaction(

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -38,7 +37,7 @@ func (p *Postgres) UpdateLastNotificationTime(
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("no rows affected")
+		return errNotFound
 	}
 
 	return nil

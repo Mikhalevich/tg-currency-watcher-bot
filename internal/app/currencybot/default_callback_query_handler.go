@@ -31,6 +31,11 @@ func (cb *CurrencyBot) DefaultCallbackQueryHandler(
 			return fmt.Errorf("process currency pair: %w", err)
 		}
 
+	case button.NotificationInterval:
+		if err := cb.processNotificationInterval(ctx, btn, chatID); err != nil {
+			return fmt.Errorf("process notification interval: %w", err)
+		}
+
 	default:
 		cb.replyTextMessage(
 			ctx,
@@ -59,6 +64,23 @@ func (cb *CurrencyBot) processCurrencyPair(
 	}
 
 	cb.replyTextMessage(ctx, chatID, messageID, "Subscibed successfully")
+
+	return nil
+}
+
+func (cb *CurrencyBot) processNotificationInterval(
+	ctx context.Context,
+	btn *button.Button,
+	chatID int64,
+) error {
+	payload, err := button.GetPayload[button.NotificationIntervalPayload](*btn)
+	if err != nil {
+		return fmt.Errorf("get payload: %w", err)
+	}
+
+	if err := cb.userCurrency.ChangeNotificationInterval(ctx, chatID, payload.Interval); err != nil {
+		return fmt.Errorf("change interval: %w", err)
+	}
 
 	return nil
 }

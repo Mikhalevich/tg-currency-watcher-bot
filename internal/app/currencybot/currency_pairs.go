@@ -37,7 +37,7 @@ func (cb *CurrencyBot) CurrencyPairs(ctx context.Context, botAPI *bot.Bot, updat
 	if _, err := botAPI.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "choose pair to subscribe for notifications",
-		ReplyMarkup: makeButtonMarkup(groupID, buttons),
+		ReplyMarkup: makeButtonGroupMarkup(groupID, buttons),
 	}); err != nil {
 		return fmt.Errorf("send message: %w", err)
 	}
@@ -77,7 +77,7 @@ func (cb *CurrencyBot) makeCurrencyPairsButtons(
 	return buttons, groupID, nil
 }
 
-func makeButtonMarkup(groupID string, buttons []button.Button) models.ReplyMarkup {
+func makeButtonGroupMarkup(groupID string, buttons []button.Button) models.ReplyMarkup {
 	var (
 		buttonRow             = make([]models.InlineKeyboardButton, 0, len(buttons))
 		rows                  = len(buttons) / buttonsPerRow
