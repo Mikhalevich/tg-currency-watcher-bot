@@ -17,14 +17,18 @@ const (
 	buttonsPerRow = 4
 )
 
-func (cb *CurrencyBot) CurrencyPairs(ctx context.Context, botAPI *bot.Bot, update *models.Update) error {
+func (cb *CurrencyBot) CurrencyPairs(
+	ctx context.Context,
+	botAPI *bot.Bot,
+	info MessageInfo,
+) error {
 	currencies, err := cb.ratesProvider.CurrencyRates(ctx)
 	if err != nil {
 		return fmt.Errorf("get user currencies: %w", err)
 	}
 
 	if len(currencies) == 0 {
-		cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "no currency pairs")
+		cb.replyTextMessage(ctx, info.ChatID, info.MessageID, "no currency pairs")
 
 		return nil
 	}
@@ -35,7 +39,7 @@ func (cb *CurrencyBot) CurrencyPairs(ctx context.Context, botAPI *bot.Bot, updat
 	}
 
 	if _, err := botAPI.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID:      update.Message.Chat.ID,
+		ChatID:      info.ChatID,
 		Text:        "choose pair to subscribe for notifications",
 		ReplyMarkup: makeButtonGroupMarkup(groupID, buttons),
 	}); err != nil {

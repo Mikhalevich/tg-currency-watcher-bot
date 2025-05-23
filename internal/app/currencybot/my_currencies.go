@@ -6,24 +6,27 @@ import (
 	"strings"
 
 	"github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 )
 
-func (cb *CurrencyBot) MyCurrencies(ctx context.Context, botAPI *bot.Bot, update *models.Update) error {
-	currencies, err := cb.userCurrency.GetCurrenciesByChatID(ctx, update.Message.Chat.ID)
+func (cb *CurrencyBot) MyCurrencies(
+	ctx context.Context,
+	botAPI *bot.Bot,
+	info MessageInfo,
+) error {
+	currencies, err := cb.userCurrency.GetCurrenciesByChatID(ctx, info.ChatID)
 	if err != nil {
 		return fmt.Errorf("get user currencies: %w", err)
 	}
 
 	if len(currencies) == 0 {
-		cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "no subscribed currencies")
+		cb.replyTextMessage(ctx, info.ChatID, info.MessageID, "no subscribed currencies")
 
 		return nil
 	}
 
-	cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, formatUserCurrencies(currencies))
+	cb.replyTextMessage(ctx, info.ChatID, info.MessageID, formatUserCurrencies(currencies))
 
 	return nil
 }

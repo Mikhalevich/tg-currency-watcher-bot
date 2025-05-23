@@ -2,6 +2,7 @@ package currencybot
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/go-telegram/bot"
@@ -105,21 +106,62 @@ func (cb *CurrencyBot) setMyCommands(ctx context.Context) error {
 	return nil
 }
 
-type botHandler func(ctx context.Context, botAPI *bot.Bot, update *models.Update) error
+type MessageInfo struct {
+	ChatID    int64
+	MessageID int
+	Data      string
+}
 
-func (cb *CurrencyBot) wrapHandler(pattern string, handler botHandler) bot.HandlerFunc {
+type botHandler func(ctx context.Context, botAPI *bot.Bot, info MessageInfo) error
+type msgInfoFunc func(update *models.Update) (MessageInfo, error)
+
+func (cb *CurrencyBot) wrapHandler(
+	pattern string,
+	handler botHandler,
+	msgInfoFn msgInfoFunc,
+) bot.HandlerFunc {
 	return func(ctx context.Context, botAPI *bot.Bot, update *models.Update) {
 		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
 
 		ctx = logger.WithLogger(ctx, cb.logger.WithField("handler_path", pattern))
 
-		if err := handler(ctx, botAPI, update); err != nil {
+		info, err := msgInfoFn(update)
+		if err != nil {
+			logger.FromContext(ctx).WithError(err).Error("retrieve message info error")
+
+			return
+		}
+
+		if err := handler(ctx, botAPI, info); err != nil {
 			logger.FromContext(ctx).WithError(err).Error("handler error")
 
-			cb.replyTextMessage(ctx, update.Message.Chat.ID, update.Message.ID, "internal error")
+			cb.replyTextMessage(ctx, info.ChatID, info.MessageID, "internal error")
 		}
 	}
+}
+
+func textMessageInfo(update *models.Update) (MessageInfo, error) {
+	if update.Message != nil {
+		return MessageInfo{
+			ChatID:    update.Message.Chat.ID,
+			MessageID: update.Message.ID,
+		}, nil
+	}
+
+	return MessageInfo{}, errors.New("invalid text message")
+}
+
+func callbackQueryMessageInfo(update *models.Update) (MessageInfo, error) {
+	if update.CallbackQuery != nil {
+		return MessageInfo{
+			ChatID:    update.CallbackQuery.Message.Message.Chat.ID,
+			MessageID: update.CallbackQuery.Message.Message.ID,
+			Data:      update.CallbackQuery.Data,
+		}, nil
+	}
+
+	return MessageInfo{}, errors.New("invalid callback query")
 }
 
 func (cb *CurrencyBot) registerCommandTextHandler(
@@ -131,7 +173,7 @@ func (cb *CurrencyBot) registerCommandTextHandler(
 		bot.HandlerTypeMessageText,
 		pattern,
 		bot.MatchTypeExact,
-		cb.wrapHandler(pattern, handler),
+		cb.wrapHandler(pattern, handler, textMessageInfo),
 	)
 
 	cb.commands = append(cb.commands, models.BotCommand{
@@ -145,7 +187,7 @@ func (cb *CurrencyBot) addDefaultCallbackQueryHander(handler botHandler) {
 		bot.HandlerTypeCallbackQueryData,
 		"",
 		bot.MatchTypePrefix,
-		cb.wrapHandler("default_callback_query", handler),
+		cb.wrapHandler("default_callback_query", handler, callbackQueryMessageInfo),
 	)
 }
 
