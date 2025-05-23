@@ -18,11 +18,11 @@ var (
 )
 
 type ButtonRepository struct {
-	client *redis.Client
+	client redis.UniversalClient
 	ttl    time.Duration
 }
 
-func New(client *redis.Client, ttl time.Duration) *ButtonRepository {
+func New(client redis.UniversalClient, ttl time.Duration) *ButtonRepository {
 	return &ButtonRepository{
 		client: client,
 		ttl:    ttl,
