@@ -6,13 +6,16 @@ import (
 	"strconv"
 
 	"github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
 	"github.com/google/uuid"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
 )
 
-func (cb *CurrencyBot) NotificationInterval(ctx context.Context, botAPI *bot.Bot, update *models.Update) error {
+func (cb *CurrencyBot) NotificationInterval(
+	ctx context.Context,
+	botAPI *bot.Bot,
+	info MessageInfo,
+) error {
 	buttons, groupID, err := cb.makeNotificationIntervalButtons(
 		ctx,
 		[]int{1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24},
@@ -23,7 +26,7 @@ func (cb *CurrencyBot) NotificationInterval(ctx context.Context, botAPI *bot.Bot
 	}
 
 	if _, err := botAPI.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID:      update.Message.Chat.ID,
+		ChatID:      info.ChatID,
 		Text:        "change notification interval",
 		ReplyMarkup: makeButtonGroupMarkup(groupID, buttons),
 	}); err != nil {

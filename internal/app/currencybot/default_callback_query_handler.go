@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
 )
@@ -13,34 +12,29 @@ import (
 func (cb *CurrencyBot) DefaultCallbackQueryHandler(
 	ctx context.Context,
 	botAPI *bot.Bot,
-	update *models.Update,
+	info MessageInfo,
 ) error {
-	btn, err := cb.buttonProvider.GetButton(ctx, update.CallbackQuery.Data)
+	btn, err := cb.buttonProvider.GetButton(ctx, info.Data)
 	if err != nil {
 		return fmt.Errorf("get button: %w", err)
 	}
 
-	var (
-		chatID    = update.CallbackQuery.Message.Message.Chat.ID
-		messageID = update.CallbackQuery.Message.Message.ID
-	)
-
 	switch btn.Type {
 	case button.CurrencyPair:
-		if err := cb.processCurrencyPair(ctx, btn, chatID, messageID); err != nil {
+		if err := cb.processCurrencyPair(ctx, btn, info.ChatID, info.MessageID); err != nil {
 			return fmt.Errorf("process currency pair: %w", err)
 		}
 
 	case button.NotificationInterval:
-		if err := cb.processNotificationInterval(ctx, btn, chatID); err != nil {
+		if err := cb.processNotificationInterval(ctx, btn, info.ChatID); err != nil {
 			return fmt.Errorf("process notification interval: %w", err)
 		}
 
 	default:
 		cb.replyTextMessage(
 			ctx,
-			chatID,
-			messageID,
+			info.ChatID,
+			info.MessageID,
 			"command is not supported",
 		)
 	}
