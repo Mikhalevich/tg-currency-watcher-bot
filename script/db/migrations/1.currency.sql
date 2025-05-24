@@ -19,6 +19,7 @@ INSERT INTO currency(base, base_external_id, quote, quote_external_id, price, is
     ('USD', '2781', 'EUR', '2790', 0, TRUE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'RUB', '2806', 0, FALSE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'BYN', '3533', 0, FALSE, CURRENT_TIMESTAMP),
+    ('USD', '2781', 'CNY', '2787', 0, FALSE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'XAU', '3575', 0, TRUE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'XAG', '3574', 0, TRUE, CURRENT_TIMESTAMP),
     ('USD', '2781', 'XPT', '3577', 0, TRUE, CURRENT_TIMESTAMP),
