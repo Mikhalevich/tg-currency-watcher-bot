@@ -21,6 +21,7 @@ func (e ExternalID) String() string {
 }
 
 type Currency struct {
+	ID         int
 	Base       Symbol
 	Quote      Symbol
 	Price      Money
