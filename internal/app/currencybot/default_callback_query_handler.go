@@ -25,6 +25,11 @@ func (cb *CurrencyBot) DefaultCallbackQueryHandler(
 			return fmt.Errorf("process currency pair: %w", err)
 		}
 
+	case button.UnsubscribeCurrencyPair:
+		if err := cb.processUnsubscribeCurrencyPair(ctx, btn, info.ChatID, info.MessageID); err != nil {
+			return fmt.Errorf("process unsubscribe currency pair: %w", err)
+		}
+
 	case button.NotificationInterval:
 		if err := cb.processNotificationInterval(ctx, btn, info.ChatID); err != nil {
 			return fmt.Errorf("process notification interval: %w", err)
@@ -58,6 +63,26 @@ func (cb *CurrencyBot) processCurrencyPair(
 	}
 
 	cb.replyTextMessage(ctx, chatID, messageID, "Subscibed successfully")
+
+	return nil
+}
+
+func (cb *CurrencyBot) processUnsubscribeCurrencyPair(
+	ctx context.Context,
+	btn *button.Button,
+	chatID int64,
+	messageID int,
+) error {
+	payload, err := button.GetPayload[button.UnsubscribeCurrencyPairPayload](*btn)
+	if err != nil {
+		return fmt.Errorf("get payload for unsubscribe currency pair: %w", err)
+	}
+
+	if err := cb.userCurrency.UnsubscribeCurrency(ctx, chatID, payload.CurrencyID); err != nil {
+		return fmt.Errorf("unsubscribe currency: %w", err)
+	}
+
+	cb.replyTextMessage(ctx, chatID, messageID, "Unsubscibed")
 
 	return nil
 }

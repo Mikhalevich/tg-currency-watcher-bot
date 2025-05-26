@@ -18,6 +18,7 @@ import (
 type UserCurrency interface {
 	GetCurrenciesByChatID(ctx context.Context, chatID int64) ([]user.Currency, error)
 	SubscribeCurrency(ctx context.Context, chatID int64, currencyID int) error
+	UnsubscribeCurrency(ctx context.Context, chatID int64, currencyID int) error
 	ChangeNotificationInterval(ctx context.Context, chatID int64, interval int) error
 }
 
@@ -89,6 +90,7 @@ func (cb *CurrencyBot) registerHandlers() {
 	cb.registerCommandTextHandler("/subscribed_currencies", "get all subscribed currency pairs", cb.MyCurrencies)
 	cb.registerCommandTextHandler("/currency_pairs", "view all currency pairs to subscribe", cb.CurrencyPairs)
 	cb.registerCommandTextHandler("/change_notification_interval", "change notfication interval", cb.NotificationInterval)
+	cb.registerCommandTextHandler("/unsubscribe", "view all currencies for unsubscribe", cb.UnsubscribeCurrencies)
 	cb.addDefaultCallbackQueryHander(cb.DefaultCallbackQueryHandler)
 }
 

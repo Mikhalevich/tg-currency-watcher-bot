@@ -9,8 +9,9 @@ import (
 type ButtonType string
 
 const (
-	CurrencyPair         ButtonType = "CurrencyPair"
-	NotificationInterval ButtonType = "NotificationInterval"
+	CurrencyPair            ButtonType = "CurrencyPair"
+	NotificationInterval    ButtonType = "NotificationInterval"
+	UnsubscribeCurrencyPair ButtonType = "UnsubscribeCurrencyPair"
 )
 
 type Button struct {
@@ -61,6 +62,28 @@ func CurrencyPairButton(buttonID string, caption string, payload CurrencyPairPay
 		ID:      buttonID,
 		Caption: caption,
 		Type:    CurrencyPair,
+		Payload: payloadGob,
+	}, nil
+}
+
+type UnsubscribeCurrencyPairPayload struct {
+	CurrencyID int
+}
+
+func UnsubscribeCurrencyPairButton(
+	buttonID string,
+	caption string,
+	payload UnsubscribeCurrencyPairPayload,
+) (Button, error) {
+	payloadGob, err := encodePayload(payload)
+	if err != nil {
+		return Button{}, fmt.Errorf("encode payload: %w", err)
+	}
+
+	return Button{
+		ID:      buttonID,
+		Caption: caption,
+		Type:    UnsubscribeCurrencyPair,
 		Payload: payloadGob,
 	}, nil
 }
