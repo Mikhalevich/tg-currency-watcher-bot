@@ -89,7 +89,7 @@ func (cb *CurrencyBot) Start(ctx context.Context) error {
 func (cb *CurrencyBot) registerHandlers() {
 	cb.registerCommandTextHandler("/subscribed_currencies", "get all subscribed currency pairs", cb.MyCurrencies)
 	cb.registerCommandTextHandler("/currency_pairs", "view all currency pairs to subscribe", cb.CurrencyPairs)
-	cb.registerCommandTextHandler("/change_notification_interval", "change notfication interval", cb.NotificationInterval)
+	cb.registerCommandTextHandler("/change_notification_interval", "change notification interval", cb.NotificationInterval)
 	cb.registerCommandTextHandler("/unsubscribe", "view all currencies for unsubscribe", cb.UnsubscribeCurrencies)
 	cb.addDefaultCallbackQueryHander(cb.DefaultCallbackQueryHandler)
 }
@@ -200,6 +200,15 @@ func (cb *CurrencyBot) replyTextMessage(ctx context.Context, chatID int64, messa
 			MessageID: messageID,
 		},
 		Text: text,
+	}); err != nil {
+		cb.logger.WithError(err).Error("send message")
+	}
+}
+
+func (cb *CurrencyBot) sendTextMessage(ctx context.Context, chatID int64, text string) {
+	if _, err := cb.botAPI.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID: chatID,
+		Text:   text,
 	}); err != nil {
 		cb.logger.WithError(err).Error("send message")
 	}
