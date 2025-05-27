@@ -13,7 +13,7 @@ func (u *UserProcessor) UnsubscribeCurrency(ctx context.Context, chatID int64, c
 
 	if err := u.storage.RemoveUserCurrency(ctx, usr.ID, currencyID); err != nil {
 		if u.storage.IsNotFoundError(err) {
-			return fmt.Errorf("no such currency: %w", err)
+			return ErrCurrencyNotFound
 		}
 
 		return fmt.Errorf("remove user currency: %w", err)

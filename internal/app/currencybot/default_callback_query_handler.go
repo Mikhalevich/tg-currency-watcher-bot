@@ -2,11 +2,13 @@ package currencybot
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/go-telegram/bot"
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/button"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/domain/user"
 )
 
 func (cb *CurrencyBot) DefaultCallbackQueryHandler(
@@ -26,7 +28,7 @@ func (cb *CurrencyBot) DefaultCallbackQueryHandler(
 		}
 
 	case button.UnsubscribeCurrencyPair:
-		if err := cb.processUnsubscribeCurrencyPair(ctx, btn, info.ChatID, info.MessageID); err != nil {
+		if err := cb.processUnsubscribeCurrencyPair(ctx, btn, info.ChatID); err != nil {
 			return fmt.Errorf("process unsubscribe currency pair: %w", err)
 		}
 
@@ -71,7 +73,6 @@ func (cb *CurrencyBot) processUnsubscribeCurrencyPair(
 	ctx context.Context,
 	btn *button.Button,
 	chatID int64,
-	messageID int,
 ) error {
 	payload, err := button.GetPayload[button.UnsubscribeCurrencyPairPayload](*btn)
 	if err != nil {
@@ -79,10 +80,16 @@ func (cb *CurrencyBot) processUnsubscribeCurrencyPair(
 	}
 
 	if err := cb.userCurrency.UnsubscribeCurrency(ctx, chatID, payload.CurrencyID); err != nil {
+		if errors.Is(err, user.ErrCurrencyNotFound) {
+			cb.sendTextMessage(ctx, chatID, "No such currency pair")
+
+			return nil
+		}
+
 		return fmt.Errorf("unsubscribe currency: %w", err)
 	}
 
-	cb.replyTextMessage(ctx, chatID, messageID, "Unsubscibed")
+	cb.sendTextMessage(ctx, chatID, "Unsubscibed")
 
 	return nil
 }
@@ -98,8 +105,16 @@ func (cb *CurrencyBot) processNotificationInterval(
 	}
 
 	if err := cb.userCurrency.ChangeNotificationInterval(ctx, chatID, payload.Interval); err != nil {
+		if errors.Is(err, user.ErrChatNotFound) {
+			cb.sendTextMessage(ctx, chatID, "no subscribed currencies")
+
+			return nil
+		}
+
 		return fmt.Errorf("change interval: %w", err)
 	}
+
+	cb.sendTextMessage(ctx, chatID, "interval changed")
 
 	return nil
 }

@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+var (
+	ErrChatNotFound     = errors.New("chat not found")
+	ErrCurrencyNotFound = errors.New("currency not found")
+)
+
 type User struct {
 	ID                        int
 	ChatID                    int64

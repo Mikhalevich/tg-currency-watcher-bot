@@ -12,15 +12,11 @@ func (u *UserProcessor) ChangeNotificationInterval(
 ) error {
 	if err := u.storage.ChangeNotificationIntervalByChatID(ctx, chatID, interval); err != nil {
 		if u.storage.IsNotFoundError(err) {
-			u.sender.SendTextMessage(ctx, chatID, "no subscribed currencies")
-
-			return nil
+			return ErrChatNotFound
 		}
 
 		return fmt.Errorf("storage change interval: %w", err)
 	}
-
-	u.sender.SendTextMessage(ctx, chatID, "inteval changed")
 
 	return nil
 }
