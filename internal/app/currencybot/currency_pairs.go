@@ -63,7 +63,8 @@ func (cb *CurrencyBot) makeCurrencyPairsButtons(
 			strconv.Itoa(idx+1),
 			currPair.FormatPair(),
 			button.CurrencyPairPayload{
-				CurrencyID: currPair.ID,
+				CurrencyID:    currPair.ID,
+				FormattedPair: currPair.FormatPair(),
 			},
 		)
 

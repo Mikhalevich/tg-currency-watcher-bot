@@ -64,7 +64,7 @@ func (cb *CurrencyBot) processCurrencyPair(
 		return fmt.Errorf("subscribe currency: %w", err)
 	}
 
-	cb.replyTextMessage(ctx, chatID, messageID, "Subscibed successfully")
+	cb.replyTextMessage(ctx, chatID, messageID, fmt.Sprintf("Subscibed %s", payload.FormattedPair))
 
 	return nil
 }
@@ -89,7 +89,7 @@ func (cb *CurrencyBot) processUnsubscribeCurrencyPair(
 		return fmt.Errorf("unsubscribe currency: %w", err)
 	}
 
-	cb.sendTextMessage(ctx, chatID, "Unsubscibed")
+	cb.sendTextMessage(ctx, chatID, fmt.Sprintf("Unsubscibed %s", payload.FormattedPair))
 
 	return nil
 }

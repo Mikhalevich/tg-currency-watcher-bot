@@ -58,7 +58,8 @@ func (cb *CurrencyBot) makeUnsubscribeButtons(
 			strconv.Itoa(idx+1),
 			currPair.FormatPair(),
 			button.UnsubscribeCurrencyPairPayload{
-				CurrencyID: currPair.ID,
+				CurrencyID:    currPair.ID,
+				FormattedPair: currPair.FormatPair(),
 			},
 		)
 
