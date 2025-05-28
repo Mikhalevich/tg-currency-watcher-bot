@@ -49,7 +49,8 @@ func GetPayload[T any](b Button) (T, error) {
 }
 
 type CurrencyPairPayload struct {
-	CurrencyID int
+	CurrencyID    int
+	FormattedPair string
 }
 
 func CurrencyPairButton(buttonID string, caption string, payload CurrencyPairPayload) (Button, error) {
@@ -67,7 +68,8 @@ func CurrencyPairButton(buttonID string, caption string, payload CurrencyPairPay
 }
 
 type UnsubscribeCurrencyPairPayload struct {
-	CurrencyID int
+	CurrencyID    int
+	FormattedPair string
 }
 
 func UnsubscribeCurrencyPairButton(
