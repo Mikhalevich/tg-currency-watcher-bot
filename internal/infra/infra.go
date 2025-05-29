@@ -13,6 +13,7 @@ import (
 
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/buttonrespository"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/storage/postgres"
+	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/adapter/storage/postgres/driver"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/config"
 	"github.com/Mikhalevich/tg-currency-watcher-bot/internal/infra/logger"
 )
@@ -53,7 +54,7 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 		return nil, nil, fmt.Errorf("ping: %w", err)
 	}
 
-	p := postgres.New(dbConn)
+	p := postgres.New(dbConn, driver.NewPGX())
 
 	return p, func() {
 		dbConn.Close()

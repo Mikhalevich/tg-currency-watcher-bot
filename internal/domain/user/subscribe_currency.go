@@ -13,6 +13,10 @@ func (u *UserProcessor) SubscribeCurrency(ctx context.Context, chatID int64, cur
 	}
 
 	if err := u.storage.AddUserCurrency(ctx, usr.ID, currencyID); err != nil {
+		if u.storage.IsAlreadyExistsError(err) {
+			return ErrCurrencyAlreadyExists
+		}
+
 		return fmt.Errorf("add user currency: %w", err)
 	}
 

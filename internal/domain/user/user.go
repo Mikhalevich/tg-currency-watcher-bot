@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	ErrChatNotFound     = errors.New("chat not found")
-	ErrCurrencyNotFound = errors.New("currency not found")
+	ErrChatNotFound          = errors.New("chat not found")
+	ErrCurrencyNotFound      = errors.New("currency not found")
+	ErrCurrencyAlreadyExists = errors.New("currency already exists")
 )
 
 type User struct {
@@ -20,6 +21,7 @@ type User struct {
 	LastNotificationTime      time.Time
 }
 
+//nolint:interfacebloat
 type Storage interface {
 	GetCurrenciesByChatID(ctx context.Context, chatID int64) ([]Currency, error)
 	CreateUser(ctx context.Context, usr *User) (int, error)
@@ -33,6 +35,7 @@ type Storage interface {
 	Transaction(ctx context.Context, txFn func(ctx context.Context, store any) error) error
 
 	IsNotFoundError(err error) bool
+	IsAlreadyExistsError(err error) bool
 }
 
 type MessageSender interface {

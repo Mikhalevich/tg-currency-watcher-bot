@@ -19,6 +19,10 @@ func (p *Postgres) AddUserCurrency(ctx context.Context, userID int, currencyID i
 	`, userID, currencyID).ExecContext(ctx, p.db)
 
 	if err != nil {
+		if p.driver.IsConstraintError(err, "user_currency_pk") {
+			return errAlreadyExists
+		}
+
 		return fmt.Errorf("insert users currency: %w", err)
 	}
 
