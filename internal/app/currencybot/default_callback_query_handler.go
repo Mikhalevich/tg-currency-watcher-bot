@@ -23,7 +23,7 @@ func (cb *CurrencyBot) DefaultCallbackQueryHandler(
 
 	switch btn.Type {
 	case button.CurrencyPair:
-		if err := cb.processCurrencyPair(ctx, btn, info.ChatID, info.MessageID); err != nil {
+		if err := cb.processCurrencyPair(ctx, btn, info.ChatID); err != nil {
 			return fmt.Errorf("process currency pair: %w", err)
 		}
 
@@ -53,7 +53,6 @@ func (cb *CurrencyBot) processCurrencyPair(
 	ctx context.Context,
 	btn *button.Button,
 	chatID int64,
-	messageID int,
 ) error {
 	payload, err := button.GetPayload[button.CurrencyPairPayload](*btn)
 	if err != nil {
@@ -61,10 +60,16 @@ func (cb *CurrencyBot) processCurrencyPair(
 	}
 
 	if err := cb.userCurrency.SubscribeCurrency(ctx, chatID, payload.CurrencyID); err != nil {
+		if errors.Is(err, user.ErrCurrencyAlreadyExists) {
+			cb.sendTextMessage(ctx, chatID, fmt.Sprintf("Currency %s already subscribed", payload.FormattedPair))
+
+			return nil
+		}
+
 		return fmt.Errorf("subscribe currency: %w", err)
 	}
 
-	cb.replyTextMessage(ctx, chatID, messageID, fmt.Sprintf("Subscibed %s", payload.FormattedPair))
+	cb.sendTextMessage(ctx, chatID, fmt.Sprintf("Subscibed %s", payload.FormattedPair))
 
 	return nil
 }

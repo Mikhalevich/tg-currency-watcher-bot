@@ -19,21 +19,32 @@ var _ user.Storage = (*Postgres)(nil)
 var _ rates.RatesProvider = (*Postgres)(nil)
 
 var (
-	errNotFound = errors.New("not found")
+	errNotFound      = errors.New("not found")
+	errAlreadyExists = errors.New("already exists")
 )
 
-type Postgres struct {
-	db boil.ContextExecutor
+type Driver interface {
+	IsConstraintError(err error, constraint string) bool
 }
 
-func New(db boil.ContextExecutor) *Postgres {
+type Postgres struct {
+	db     boil.ContextExecutor
+	driver Driver
+}
+
+func New(db boil.ContextExecutor, driver Driver) *Postgres {
 	return &Postgres{
-		db: db,
+		db:     db,
+		driver: driver,
 	}
 }
 
 func (p *Postgres) IsNotFoundError(err error) bool {
 	return errors.Is(err, errNotFound)
+}
+
+func (p *Postgres) IsAlreadyExistsError(err error) bool {
+	return errors.Is(err, errAlreadyExists)
 }
 
 func (p *Postgres) Transaction(
@@ -46,7 +57,7 @@ func (p *Postgres) Transaction(
 	}
 
 	if err := transaction.Transaction(ctx, db, func(ctx context.Context, tx *sql.Tx) error {
-		if err := txFn(ctx, New(tx)); err != nil {
+		if err := txFn(ctx, New(tx, p.driver)); err != nil {
 			return fmt.Errorf("tx func: %w", err)
 		}
 
