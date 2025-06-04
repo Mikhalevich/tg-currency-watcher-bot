@@ -6,10 +6,12 @@ CREATE TABLE users(
     chat_id INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     notification_interval_hours INTEGER NOT NULL,
-    last_notification_time TIMESTAMPTZ NOT NULL
+    last_notification_time TIMESTAMPTZ NOT NULL,
+    next_notification_time TIMESTAMPTZ GENERATED ALWAYS AS (date_add(last_notification_time, notification_interval_hours * '1 hour'::interval, 'UTC')) STORED
 );
 
 CREATE UNIQUE INDEX users_chat_id_idx ON users(chat_id);
+CREATE INDEX users_next_notification_time_idx ON users(next_notification_time);
 
 CREATE TABLE users_currency(
     user_id INTEGER NOT NULL,
