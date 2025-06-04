@@ -27,7 +27,7 @@ func (p *Postgres) GetUsersReadyForNotifications(
 			FROM
 				users
 			WHERE
-				last_notification_time + make_interval(hours => notification_interval_hours) < $1::timestamptz
+				next_notification_time < $1::timestamptz
 			LIMIT
 				$2
 			FOR UPDATE SKIP LOCKED
