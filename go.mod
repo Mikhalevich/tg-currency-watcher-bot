@@ -10,10 +10,11 @@ require (
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/jinzhu/configor v1.2.2
 	github.com/redis/go-redis/extra/redisotel/v9 v9.8.0
-	github.com/redis/go-redis/v9 v9.8.0
+	github.com/redis/go-redis/v9 v9.10.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2
+	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.18.0
 	github.com/volatiletech/strmangle v0.0.8
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0
@@ -45,7 +46,6 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.3.2 // indirect
 	github.com/volatiletech/inflect v0.0.1 // indirect
-	github.com/volatiletech/null/v8 v8.1.2 // indirect
 	github.com/volatiletech/randomize v0.0.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel/log v0.6.0 // indirect
