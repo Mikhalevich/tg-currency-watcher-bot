@@ -10,7 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/jinzhu/configor v1.2.2
 	github.com/redis/go-redis/extra/redisotel/v9 v9.8.0
-	github.com/redis/go-redis/v9 v9.10.0
+	github.com/redis/go-redis/v9 v9.11.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2
